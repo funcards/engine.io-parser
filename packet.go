@@ -131,9 +131,9 @@ func (m MessageType) String() string {
 }
 
 func (p *Packet) Encode(w io.Writer) error {
-	return NewPktEncoder(w).Encode(*p)
+	return NewEncoder(w).Encode(*p)
 }
 
 func (p *Packet) Decode(r io.Reader) error {
-	return NewPktDecoder(r).Decode(p)
+	return NewDecoder(r).Decode(p)
 }

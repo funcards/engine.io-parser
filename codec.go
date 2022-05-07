@@ -7,15 +7,15 @@ import (
 	"io"
 )
 
-type pktEncoder struct {
+type encoder struct {
 	w io.Writer
 }
 
-func NewPktEncoder(w io.Writer) *pktEncoder {
-	return &pktEncoder{w}
+func NewEncoder(w io.Writer) *encoder {
+	return &encoder{w}
 }
 
-func (e *pktEncoder) Encode(pkt Packet) error {
+func (e *encoder) Encode(pkt Packet) error {
 	if data, ok := pkt.Data.([]byte); ok {
 		// only 'message' packets can contain binary, so the type prefix is not needed
 		return e.err(e.write(data, pkt.MsgType))
@@ -32,14 +32,14 @@ func (e *pktEncoder) Encode(pkt Packet) error {
 	return nil
 }
 
-func (e *pktEncoder) err(err error) error {
+func (e *encoder) err(err error) error {
 	if err == nil {
 		return nil
 	}
 	return fmt.Errorf("encode packet error: %w", err)
 }
 
-func (e *pktEncoder) write(data []byte, msgType MessageType) error {
+func (e *encoder) write(data []byte, msgType MessageType) error {
 	if msgType == MessageTypeBinary {
 		_, err := e.w.Write(data)
 		return err
@@ -58,15 +58,15 @@ func (e *pktEncoder) write(data []byte, msgType MessageType) error {
 	return enc.Close()
 }
 
-type pktDecoder struct {
+type decoder struct {
 	r io.Reader
 }
 
-func NewPktDecoder(r io.Reader) *pktDecoder {
-	return &pktDecoder{r}
+func NewDecoder(r io.Reader) *decoder {
+	return &decoder{r}
 }
 
-func (d *pktDecoder) Decode(pkt *Packet) error {
+func (d *decoder) Decode(pkt *Packet) error {
 	if pkt == nil {
 		return d.err(ErrNilPacket)
 	}
@@ -106,14 +106,14 @@ func (d *pktDecoder) Decode(pkt *Packet) error {
 	return d.readAsStr(pkt)
 }
 
-func (d *pktDecoder) err(err error) error {
+func (d *decoder) err(err error) error {
 	if err == nil {
 		return nil
 	}
 	return fmt.Errorf("decode packet error: %w", err)
 }
 
-func (d *pktDecoder) readAsStr(pkt *Packet) error {
+func (d *decoder) readAsStr(pkt *Packet) error {
 	data, err := io.ReadAll(d.r)
 	if err != nil {
 		return d.err(err)

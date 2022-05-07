@@ -6,11 +6,11 @@ import (
 	"testing"
 )
 
-func TestPktDecoder_Decode(t *testing.T) {
+func TestDecoder_Decode(t *testing.T) {
 	cases := []string{"", "a123"}
 	for _, tc := range cases {
 		t.Run(fmt.Sprintf("should fail decode \"%s\"", tc), func(t *testing.T) {
-			dec := NewPktDecoder(bytes.NewReader([]byte(tc)))
+			dec := NewDecoder(bytes.NewReader([]byte(tc)))
 			got := dec.Decode(new(Packet))
 			if got == nil {
 				t.Fail()
@@ -23,7 +23,7 @@ func TestPktDecoder_Decode(t *testing.T) {
 	arg := wantType.Str() + wantData
 	t.Run(fmt.Sprintf("%s=%s%s", arg, wantType.Str(), wantData), func(t *testing.T) {
 		var pkt Packet
-		dec := NewPktDecoder(bytes.NewReader([]byte(arg)))
+		dec := NewDecoder(bytes.NewReader([]byte(arg)))
 		if err := dec.Decode(&pkt); err != nil {
 			t.Errorf("Expected decode, but got: '%v'", err)
 		}
@@ -33,7 +33,7 @@ func TestPktDecoder_Decode(t *testing.T) {
 	})
 }
 
-func TestPktEncoder_Encode(t *testing.T) {
+func TestEncoder_Encode(t *testing.T) {
 	type testCase struct {
 		arg  Packet
 		want string
@@ -45,7 +45,7 @@ func TestPktEncoder_Encode(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(tc.want, func(t *testing.T) {
 			var buf bytes.Buffer
-			if err := NewPktEncoder(&buf).Encode(tc.arg); err != nil {
+			if err := NewEncoder(&buf).Encode(tc.arg); err != nil {
 				t.Errorf("Expected encode, but got: '%v'", err)
 			}
 			got := buf.String()
