@@ -6,6 +6,20 @@
 
 This is the GO parser **version 4** for the engine.io protocol encoding.
 
+## Installation
+
+Use go get.
+
+```bash
+go get github.com/funcards/engine.io-parser/v4
+```
+
+Then import the validator package into your own code.
+
+```go
+import "github.com/funcards/engine.io-parser/v4"
+```
+
 ## How to use
 
 The parser can encode/decode packets, payloads and payloads as binary.
