@@ -1,4 +1,5 @@
 # engine.io-parser
+
 ![workflow](https://github.com/funcards/engine.io-parser/actions/workflows/workflow.yml/badge.svg)
 [![Coverage Status](https://coveralls.io/repos/funcards/engine.io-parser/badge.svg?branch=main&service=github)](https://coveralls.io/github/funcards/engine.io-parser?branch=main)
 [![GoDoc](https://godoc.org/github.com/funcards/engine.io-parser?status.svg)](https://pkg.go.dev/github.com/funcards/engine.io-parser/v4)

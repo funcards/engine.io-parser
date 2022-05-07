@@ -7,8 +7,9 @@ import (
 )
 
 const (
-	Sep       = '\u001E'
-	Separator = string(Sep) // string(rune(30))
+	Protocol  = 4
+	Sep       = '\u001E' // rune(30)
+	Separator = string(Sep)
 )
 
 type Payload struct {
