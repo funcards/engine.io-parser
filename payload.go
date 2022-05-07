@@ -27,8 +27,7 @@ func (p *Payload) Encode(w io.Writer) error {
 			return nil
 		}
 
-		_, err := w.Write([]byte(Separator))
-		if err != nil {
+		if _, err := w.Write([]byte(Separator)); err != nil {
 			return p.eerr(err)
 		}
 	}

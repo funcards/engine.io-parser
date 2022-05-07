@@ -45,14 +45,12 @@ func (e *Encoder) write(data []byte, msgType MessageType) error {
 		return err
 	}
 
-	_, err := e.w.Write([]byte("b"))
-	if err != nil {
+	if _, err := e.w.Write([]byte("b")); err != nil {
 		return err
 	}
 
 	enc := base64.NewEncoder(base64.StdEncoding, e.w)
-	_, err = enc.Write(data)
-	if err != nil {
+	if _, err := enc.Write(data); err != nil {
 		return err
 	}
 	return enc.Close()
