@@ -18,7 +18,7 @@ func TestPktDecoder_Decode(t *testing.T) {
 		})
 	}
 
-	wantType := PacketTypeMessage
+	wantType := Message
 	wantData := "test"
 	arg := wantType.Str() + wantData
 	t.Run(fmt.Sprintf("%s=%s%s", arg, wantType.Str(), wantData), func(t *testing.T) {
@@ -39,8 +39,8 @@ func TestPktEncoder_Encode(t *testing.T) {
 		want string
 	}
 	cases := []testCase{
-		{Packet{MsgType: MessageTypeBinary, Type: PacketTypeMessage, Data: "test"}, "4test"},
-		{Packet{MsgType: MessageTypeBinary, Type: PacketTypeMessage, Data: []byte("test")}, "test"},
+		{Packet{MsgType: MessageTypeBinary, Type: Message, Data: "test"}, "4test"},
+		{Packet{MsgType: MessageTypeBinary, Type: Message, Data: []byte("test")}, "test"},
 	}
 	for _, tc := range cases {
 		t.Run(tc.want, func(t *testing.T) {

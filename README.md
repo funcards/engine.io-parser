@@ -32,11 +32,11 @@ var buf bytes.Buffer
 
 payload := eio_parser.Payload{
     Packets: []eio_parser.Packet{
-        {Type: eio_parser.PacketTypeOpen},
-        {Type: eio_parser.PacketTypeClose},
-        {Type: eio_parser.PacketTypePing, Data: "probe"},
-        {Type: eio_parser.PacketTypePong, Data: "probe"},
-        {Type: eio_parser.PacketTypeMessage, Data: "test"},
+        {Type: eio_parser.Open},
+        {Type: eio_parser.Close},
+        {Type: eio_parser.Ping, Data: "probe"},
+        {Type: eio_parser.Pong, Data: "probe"},
+        {Type: eio_parser.Message, Data: "test"},
     },
 }
 payload.Encode(&buf)

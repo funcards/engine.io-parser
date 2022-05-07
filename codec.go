@@ -77,7 +77,7 @@ func (d *pktDecoder) Decode(pkt *Packet) error {
 			return d.err(err)
 		}
 
-		pkt.Type = PacketTypeMessage
+		pkt.Type = Message
 		if len(data) > 0 {
 			pkt.Data = data
 		}
@@ -92,7 +92,7 @@ func (d *pktDecoder) Decode(pkt *Packet) error {
 
 	if char == 'b' {
 		d.r = base64.NewDecoder(base64.StdEncoding, r)
-		pkt.Type = PacketTypeMessage
+		pkt.Type = Message
 		return d.readAsStr(pkt)
 	}
 

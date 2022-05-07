@@ -12,14 +12,14 @@ func TestNewPacketType(t *testing.T) {
 	}
 
 	cases := []testCase{
-		{"message", PacketTypeMessage},
-		{"noop", PacketTypeNoop},
-		{"4", PacketTypeMessage},
-		{"2", PacketTypePing},
-		{"", PacketTypeError},
-		{"fail", PacketTypeError},
-		{"-2", PacketTypeError},
-		{"7", PacketTypeError},
+		{"message", Message},
+		{"noop", Noop},
+		{"4", Message},
+		{"2", Ping},
+		{"", Error},
+		{"fail", Error},
+		{"-2", Error},
+		{"7", Error},
 	}
 
 	for _, tc := range cases {
@@ -38,8 +38,8 @@ func TestPacketType_String(t *testing.T) {
 		want string
 	}
 	cases := []testCase{
-		{PacketTypeUpgrade, StrPacketTypeUpgrade},
-		{PacketTypeOpen, StrPacketTypeOpen},
+		{Upgrade, StrUpgrade},
+		{Open, StrOpen},
 	}
 	for _, tc := range cases {
 		t.Run(fmt.Sprintf("%d=%s", tc.arg, tc.want), func(t *testing.T) {

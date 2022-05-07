@@ -26,33 +26,33 @@ type (
 )
 
 const (
-	// PacketTypeOpen is sent from the server when new transport is opened (recheck)
-	PacketTypeOpen PacketType = iota
-	// PacketTypeClose requests the close of this transport but does not shut down the connection itself.
-	PacketTypeClose
-	// PacketTypePing is sent by the client. Server should answer with a pong packet containing the same data
-	PacketTypePing
-	// PacketTypePong is sent by the server to respond to ping packets.
-	PacketTypePong
-	// PacketTypeMessage denotes actual message, client and server should call their callbacks with the data.
-	PacketTypeMessage
-	// PacketTypeUpgrade is sent by the client requesting the server to flush its cache on the old transport and switch to the new transport.
-	PacketTypeUpgrade
-	// PacketTypeNoop denotes a noop packet. Used primarily to force a poll cycle when an incoming websocket connection is received.
-	PacketTypeNoop
-	// PacketTypeError is for internal use
-	PacketTypeError
+	// Open is sent from the server when new transport is opened (recheck)
+	Open PacketType = iota
+	// Close requests the close of this transport but does not shut down the connection itself.
+	Close
+	// Ping is sent by the client. Server should answer with a pong packet containing the same data
+	Ping
+	// Pong is sent by the server to respond to ping packets.
+	Pong
+	// Message denotes actual message, client and server should call their callbacks with the data.
+	Message
+	// Upgrade is sent by the client requesting the server to flush its cache on the old transport and switch to the new transport.
+	Upgrade
+	// Noop denotes a noop packet. Used primarily to force a poll cycle when an incoming websocket connection is received.
+	Noop
+	// Error is for internal use
+	Error
 )
 
 const (
-	StrPacketTypeOpen    = "open"
-	StrPacketTypeClose   = "close"
-	StrPacketTypePing    = "ping"
-	StrPacketTypePong    = "pong"
-	StrPacketTypeMessage = "message"
-	StrPacketTypeUpgrade = "upgrade"
-	StrPacketTypeNoop    = "noop"
-	StrPacketTypeError   = "error"
+	StrOpen    = "open"
+	StrClose   = "close"
+	StrPing    = "ping"
+	StrPong    = "pong"
+	StrMessage = "message"
+	StrUpgrade = "upgrade"
+	StrNoop    = "noop"
+	StrError   = "error"
 )
 
 const (
@@ -64,22 +64,22 @@ const (
 
 var (
 	mapTypeToStr = map[PacketType]string{
-		PacketTypeOpen:    StrPacketTypeOpen,
-		PacketTypeClose:   StrPacketTypeClose,
-		PacketTypePing:    StrPacketTypePing,
-		PacketTypePong:    StrPacketTypePong,
-		PacketTypeMessage: StrPacketTypeMessage,
-		PacketTypeUpgrade: StrPacketTypeUpgrade,
-		PacketTypeNoop:    StrPacketTypeNoop,
+		Open:    StrOpen,
+		Close:   StrClose,
+		Ping:    StrPing,
+		Pong:    StrPong,
+		Message: StrMessage,
+		Upgrade: StrUpgrade,
+		Noop:    StrNoop,
 	}
 	mapStrToType = map[string]PacketType{
-		StrPacketTypeOpen:    PacketTypeOpen,
-		StrPacketTypeClose:   PacketTypeClose,
-		StrPacketTypePing:    PacketTypePing,
-		StrPacketTypePong:    PacketTypePong,
-		StrPacketTypeMessage: PacketTypeMessage,
-		StrPacketTypeUpgrade: PacketTypeUpgrade,
-		StrPacketTypeNoop:    PacketTypeNoop,
+		StrOpen:    Open,
+		StrClose:   Close,
+		StrPing:    Ping,
+		StrPong:    Pong,
+		StrMessage: Message,
+		StrUpgrade: Upgrade,
+		StrNoop:    Noop,
 	}
 )
 
@@ -88,12 +88,12 @@ func NewPacketType(str string) (PacketType, error) {
 		if p, ok := mapStrToType[str]; ok {
 			return p, nil
 		}
-		return PacketTypeError, fmt.Errorf("%s error: %w", str, ErrInvalidPacketType)
+		return Error, fmt.Errorf("%s error: %w", str, ErrInvalidPacketType)
 	}
 
 	n, err := strconv.Atoi(str)
-	if err != nil || n < PacketTypeOpen.Int() || n > PacketTypeNoop.Int() {
-		return PacketTypeError, fmt.Errorf("%s error: %w", str, ErrInvalidPacketType)
+	if err != nil || n < Open.Int() || n > Noop.Int() {
+		return Error, fmt.Errorf("%s error: %w", str, ErrInvalidPacketType)
 	}
 
 	return PacketType(n), nil
@@ -104,7 +104,7 @@ func (p PacketType) String() string {
 	if str, ok := mapTypeToStr[p]; ok {
 		return str
 	}
-	return StrPacketTypeError
+	return StrError
 }
 
 func (p PacketType) Int() int {

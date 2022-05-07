@@ -9,11 +9,11 @@ import (
 func TestPayload_Encode(t *testing.T) {
 	payload := Payload{
 		Packets: []Packet{
-			{Type: PacketTypeOpen},
-			{Type: PacketTypeClose},
-			{Type: PacketTypePing, Data: "probe"},
-			{Type: PacketTypePong, Data: "probe"},
-			{Type: PacketTypeMessage, Data: "test"},
+			{Type: Open},
+			{Type: Close},
+			{Type: Ping, Data: "probe"},
+			{Type: Pong, Data: "probe"},
+			{Type: Message, Data: "test"},
 		},
 	}
 
@@ -38,11 +38,11 @@ func TestPayload_Decode(t *testing.T) {
 
 	want := Payload{
 		Packets: []Packet{
-			{Type: PacketTypeOpen},
-			{Type: PacketTypeClose},
-			{Type: PacketTypePing, Data: "probe"},
-			{Type: PacketTypePong, Data: "probe"},
-			{Type: PacketTypeMessage, Data: "test"},
+			{Type: Open},
+			{Type: Close},
+			{Type: Ping, Data: "probe"},
+			{Type: Pong, Data: "probe"},
+			{Type: Message, Data: "test"},
 		},
 	}
 
@@ -50,6 +50,3 @@ func TestPayload_Decode(t *testing.T) {
 		t.Errorf("Expected '%v', but got '%v'", want.Packets, got.Packets)
 	}
 }
-
-// [{string open <nil>} {string close <nil>} {string ping probe} {string pong probe} {string message test}]
-// [{string open <nil>} {string close <nil>} {string ping probe} {string pong probe} {string message tes}]
