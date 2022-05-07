@@ -1,4 +1,8 @@
 # engine.io-parser
+[![GoDoc][godoc-image]][godoc-url]
+[![CI][ci-badge]][ci-url]
+[![Coverage Status](https://coveralls.io/repos/funcards/engine.io-parser/badge.svg?branch=main&service=github)](https://coveralls.io/github/funcards/engine.io-parser?branch=main)
+![License](https://img.shields.io/dub/l/vibe-d.svg)
 
 This is the GO parser **version 4** for the engine.io protocol encoding.
 
@@ -26,3 +30,7 @@ fmt.Println(buf.Bytes())
 payload1 = eio_parser.Payload{}
 payload1.Decode(&buf) // payload == payload1
 ```
+
+## License
+
+Distributed under MIT License, please see license file within the code for more details.
