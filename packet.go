@@ -3,25 +3,30 @@ package eio_parser
 import (
 	"errors"
 	"fmt"
-	"io"
 	"strconv"
 )
 
+const (
+	Protocol  = 4
+	Sep       = '\u001E' // rune(30)
+	Separator = string(Sep)
+)
+
 var (
-	ErrNilPacket         = errors.New("packet is nil")
-	ErrInvalidPacketType = errors.New("invalid packet type")
+	ErrDecodeBase64   = errors.New("invalid base64 payload")
+	ErrInvalidType    = errors.New("invalid packet type")
+	ErrInvalidPayload = errors.New("invalid payload")
+	ErrPayloadEmpty   = errors.New("payload is empty")
 )
 
 type (
 	// PacketType indicates type of engine.io Packet
 	PacketType byte
-	// MessageType indicates type of engine.io Message
-	MessageType byte
+	Payload    []Packet
 
 	Packet struct {
-		MsgType MessageType `json:"-"`
-		Type    PacketType  `json:"type"`
-		Data    any         `json:"data,omitempty"`
+		Type PacketType
+		Data any
 	}
 )
 
@@ -55,13 +60,6 @@ const (
 	StrError   = "error"
 )
 
-const (
-	// MessageTypeString indicates Message encoded as string
-	MessageTypeString MessageType = iota
-	// MessageTypeBinary indicates Message encoded as binary
-	MessageTypeBinary
-)
-
 var (
 	mapTypeToStr = map[PacketType]string{
 		Open:    StrOpen,
@@ -83,20 +81,32 @@ var (
 	}
 )
 
-func NewPacketType(str string) (PacketType, error) {
+func ParseTypeASCII(r uint8) (PacketType, error) {
+	return ParseType(string(r))
+}
+
+func ParseType(str string) (PacketType, error) {
 	if len(str) > 1 {
 		if p, ok := mapStrToType[str]; ok {
 			return p, nil
 		}
-		return Error, fmt.Errorf("%s error: %w", str, ErrInvalidPacketType)
+		return Error, fmt.Errorf("%s error: %w", str, ErrInvalidType)
 	}
 
 	n, err := strconv.Atoi(str)
 	if err != nil || n < Open.Int() || n > Noop.Int() {
-		return Error, fmt.Errorf("%s error: %w", str, ErrInvalidPacketType)
+		return Error, fmt.Errorf("%s error: %w", str, ErrInvalidType)
 	}
 
 	return PacketType(n), nil
+}
+
+func MustParseType(str string) PacketType {
+	t, err := ParseType(str)
+	if err != nil {
+		panic(err)
+	}
+	return t
 }
 
 // String returns string representation of a PacketType
@@ -111,29 +121,53 @@ func (p PacketType) Int() int {
 	return int(p)
 }
 
-func (p PacketType) Str() string {
+func (p PacketType) Encode() string {
 	return strconv.Itoa(p.Int())
 }
 
 func (p PacketType) Bytes() []byte {
-	return []byte(p.Str())
+	return []byte(p.Encode())
 }
 
-// String returns string representation of a MessageType
-func (m MessageType) String() string {
-	switch m {
-	case MessageTypeString:
-		return "string"
-	case MessageTypeBinary:
-		return "binary"
+func TextPacket(t PacketType, data ...string) Packet {
+	return Packet{Type: t, Data: optstr(data...)}
+}
+
+func BinaryPacket(t PacketType, data []byte) Packet {
+	return Packet{Type: t, Data: data}
+}
+
+func MessagePacket(data any) Packet {
+	return Packet{Type: Message, Data: data}
+}
+
+func OpenPacket(data ...string) Packet {
+	return TextPacket(Open, data...)
+}
+
+func ClosePacket(reason ...string) Packet {
+	return TextPacket(Close, reason...)
+}
+
+func PingPacket(data ...string) Packet {
+	return TextPacket(Ping, data...)
+}
+
+func PongPacket(data ...string) Packet {
+	return TextPacket(Pong, data...)
+}
+
+func ErrorPacket(err error) Packet {
+	return Packet{Type: Error, Data: err}
+}
+
+func optstr(str ...string) any {
+	if len(str) == 0 || len(str[0]) == 0 {
+		return nil
 	}
-	return "invalid"
+	return str[0]
 }
 
-func (p *Packet) Encode(w io.Writer) error {
-	return NewEncoder(w).Encode(*p)
-}
-
-func (p *Packet) Decode(r io.Reader) error {
-	return NewDecoder(r).Decode(p)
+func (p *Packet) Encode(supportsBinary bool) any {
+	return EncodePacket(*p, supportsBinary)
 }

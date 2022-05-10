@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestNewPacketType(t *testing.T) {
+func TestParseType(t *testing.T) {
 	type testCase struct {
 		arg  string
 		want PacketType
@@ -24,7 +24,7 @@ func TestNewPacketType(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(fmt.Sprintf("%s=%d", tc.arg, tc.want), func(t *testing.T) {
-			got, _ := NewPacketType(tc.arg)
+			got, _ := ParseType(tc.arg)
 			if tc.want != got {
 				t.Errorf("Expected '%d', but got '%d'", tc.want, got)
 			}

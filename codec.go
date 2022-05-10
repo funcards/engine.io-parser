@@ -1,124 +1,82 @@
 package eio_parser
 
 import (
-	"bufio"
 	"encoding/base64"
-	"fmt"
-	"io"
+	"strings"
 )
 
-type Encoder struct {
-	w io.Writer
+// EncodePacket encode packet
+// supportsBinary whether the transport supports binary encoding
+func EncodePacket(packet Packet, supportsBinary bool) any {
+	if data, ok := packet.Data.([]byte); ok {
+		return encodeByteArray(data, supportsBinary)
+	}
+
+	encoded := packet.Type.Encode()
+	if packet.Data != nil {
+		encoded += packet.Data.(string)
+	}
+	return encoded
 }
 
-func NewEncoder(w io.Writer) *Encoder {
-	return &Encoder{w}
+func encodeByteArray(data []byte, supportsBinary bool) any {
+	if supportsBinary {
+		return data
+	}
+	return "b" + base64.StdEncoding.EncodeToString(data)
 }
 
-func (e *Encoder) Encode(pkt Packet) error {
-	if data, ok := pkt.Data.([]byte); ok {
-		// only 'message' packets can contain binary, so the type prefix is not needed
-		return e.err(e.write(data, pkt.MsgType))
+func DecodePacket(payload any) (Packet, error) {
+	if payload == nil {
+		return ErrorPacket(ErrInvalidPayload), ErrInvalidPayload
 	}
 
-	if err := e.write(pkt.Type.Bytes(), MessageTypeBinary); err != nil {
-		return e.err(err)
-	}
-
-	if data, ok := pkt.Data.(string); ok {
-		return e.err(e.write([]byte(data), MessageTypeBinary))
-	}
-
-	return nil
-}
-
-func (e *Encoder) err(err error) error {
-	if err == nil {
-		return nil
-	}
-	return fmt.Errorf("encode packet error: %w", err)
-}
-
-func (e *Encoder) write(data []byte, msgType MessageType) error {
-	if msgType == MessageTypeBinary {
-		_, err := e.w.Write(data)
-		return err
-	}
-
-	if _, err := e.w.Write([]byte("b")); err != nil {
-		return err
-	}
-
-	enc := base64.NewEncoder(base64.StdEncoding, e.w)
-	if _, err := enc.Write(data); err != nil {
-		return err
-	}
-	return enc.Close()
-}
-
-type Decoder struct {
-	r io.Reader
-}
-
-func NewDecoder(r io.Reader) *Decoder {
-	return &Decoder{r}
-}
-
-func (d *Decoder) Decode(pkt *Packet) error {
-	if pkt == nil {
-		return d.err(ErrNilPacket)
-	}
-
-	if pkt.MsgType == MessageTypeBinary {
-		data, err := io.ReadAll(d.r)
+	switch raw := payload.(type) {
+	case string:
+		if len(raw) == 0 {
+			return ErrorPacket(ErrPayloadEmpty), ErrPayloadEmpty
+		}
+		// 98 = 'b'
+		if 98 == raw[0] {
+			data, err := base64.StdEncoding.DecodeString(raw[1:])
+			if err != nil {
+				return ErrorPacket(ErrDecodeBase64), err
+			}
+			return MessagePacket(data), nil
+		}
+		t, err := ParseTypeASCII(raw[0])
 		if err != nil {
-			return d.err(err)
+			return ErrorPacket(err), err
 		}
-
-		pkt.Type = Message
-		if len(data) > 0 {
-			pkt.Data = data
-		}
-		return nil
+		return TextPacket(t, raw[1:]), nil
+	case []byte:
+		return MessagePacket(raw), nil
 	}
 
-	r := bufio.NewReader(d.r)
-	char, _, err := r.ReadRune()
-	if err != nil {
-		return d.err(err)
-	}
-
-	if char == 'b' {
-		d.r = base64.NewDecoder(base64.StdEncoding, r)
-		pkt.Type = Message
-		return d.readAsStr(pkt)
-	}
-
-	pktType, err := NewPacketType(string(char))
-	if err != nil {
-		return d.err(err)
-	}
-
-	d.r = r
-	pkt.Type = pktType
-	return d.readAsStr(pkt)
+	return ErrorPacket(ErrInvalidType), ErrInvalidType
 }
 
-func (d *Decoder) err(err error) error {
-	if err == nil {
-		return nil
+func EncodePayload(payload Payload) string {
+	data := make([]string, 0, len(payload))
+	for _, pkt := range payload {
+		data = append(data, EncodePacket(pkt, false).(string))
 	}
-	return fmt.Errorf("decode packet error: %w", err)
+	return strings.Join(data, Separator)
 }
 
-func (d *Decoder) readAsStr(pkt *Packet) error {
-	data, err := io.ReadAll(d.r)
-	if err != nil {
-		return d.err(err)
+func DecodePayload(payload any) (Payload, error) {
+	str, ok := payload.(string)
+	if !ok {
+		return nil, ErrInvalidPayload
 	}
-	pkt.MsgType = MessageTypeString
-	if len(data) > 0 {
-		pkt.Data = string(data)
+	data := strings.Split(str, Separator)
+	packets := make(Payload, 0, len(data))
+	for _, item := range data {
+		pkt, err := DecodePacket(item)
+		if err != nil {
+			return nil, err
+		}
+		packets = append(packets, pkt)
 	}
-	return nil
+	return packets, nil
 }
