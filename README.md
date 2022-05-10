@@ -5,7 +5,7 @@
 [![GoDoc](https://godoc.org/github.com/funcards/engine.io-parser?status.svg)](https://pkg.go.dev/github.com/funcards/engine.io-parser/v4)
 ![License](https://img.shields.io/dub/l/vibe-d.svg)
 
-This is the GO parser **version 4** for the engine.io protocol encoding.
+This is the GO parser version **4** for the engine.io protocol encoding.
 
 ## Installation
 
@@ -28,22 +28,17 @@ The parser can encode/decode packets, payloads and payloads as binary.
 Example:
 
 ```go
-var buf bytes.Buffer
-
 payload := eio_parser.Payload{
-    Packets: []eio_parser.Packet{
-        {Type: eio_parser.Open},
-        {Type: eio_parser.Close},
-        {Type: eio_parser.Ping, Data: "probe"},
-        {Type: eio_parser.Pong, Data: "probe"},
-        {Type: eio_parser.Message, Data: "test"},
-    },
+    {Type: eio_parser.Open},
+    {Type: eio_parser.Close},
+    {Type: eio_parser.Ping, Data: "probe"},
+    {Type: eio_parser.Pong, Data: "probe"},
+    {Type: eio_parser.Message, Data: "test"},
 }
-payload.Encode(&buf)
-fmt.Println(buf.Bytes())
+encoded := payload.Encode(&buf)
+fmt.Println(encoded.(string))
 
-payload1 = eio_parser.Payload{}
-payload1.Decode(&buf) // payload == payload1
+payload1 = eio_parser.DecodePayload(encoded) // payload == payload1
 ```
 
 ## License
