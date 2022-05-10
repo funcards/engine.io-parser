@@ -17,6 +17,8 @@ var (
 	ErrInvalidType    = errors.New("invalid packet type")
 	ErrInvalidPayload = errors.New("invalid payload")
 	ErrPayloadEmpty   = errors.New("payload is empty")
+
+	NoopPacket = Packet{Type: Noop}
 )
 
 type (
@@ -168,6 +170,10 @@ func optstr(str ...string) any {
 	return str[0]
 }
 
-func (p *Packet) Encode(supportsBinary bool) any {
-	return EncodePacket(*p, supportsBinary)
+func (p Payload) Encode() any {
+	return EncodePayload(p)
+}
+
+func (p Packet) Encode(supportsBinary bool) any {
+	return EncodePacket(p, supportsBinary)
 }
