@@ -15,7 +15,7 @@ Use go get.
 go get github.com/funcards/engine.io-parser/v4
 ```
 
-Then import the validator package into your own code.
+Then import the parser package into your own code.
 
 ```go
 import "github.com/funcards/engine.io-parser/v4"
