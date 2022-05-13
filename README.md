@@ -28,17 +28,17 @@ The parser can encode/decode packets, payloads and payloads as binary.
 Example:
 
 ```go
-payload := eio_parser.Payload{
-    {Type: eio_parser.Open},
-    {Type: eio_parser.Close},
-    {Type: eio_parser.Ping, Data: "probe"},
-    {Type: eio_parser.Pong, Data: "probe"},
-    {Type: eio_parser.Message, Data: "test"},
+payload := eiop.Payload{
+    {Type: eiop.Open},
+    {Type: eiop.Close},
+    {Type: eiop.Ping, Data: "probe"},
+    {Type: eiop.Pong, Data: "probe"},
+    {Type: eiop.Message, Data: "test"},
 }
 encoded := payload.Encode(&buf)
 fmt.Println(encoded.(string))
 
-payload1 = eio_parser.DecodePayload(encoded) // payload == payload1
+payload1 = eiop.DecodePayload(encoded) // payload == payload1
 ```
 
 ## License

@@ -1,4 +1,4 @@
-package eio_parser
+package eiop
 
 import (
 	"encoding/base64"
